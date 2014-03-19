@@ -10,30 +10,49 @@
       el.innerText = text
 
     updateTime = (el, time) ->
-      updateText(time+' s')
+      updateText(el, time+' s')
 
       if time > 0
         setTimeout( ->
           time--
-          updateTime(time)
+          updateTime el, time
         , 1000)
 
-    updateProgress = ->
+    updateProgress = (el, options)->
       now = new Date()
-      timeDiff = now.getTime() - start.getTime()
-      perc = Math.floor((timeDiff/wait)*100)
+      timeDiff = now.getTime() - options.start.getTime()
+      perc = Math.floor((timeDiff/options.waitMs)*100)
 
       if perc <= 100
-        updateBar perc
-        updateText(perc+' %') if asPerc
+        updateBar options.pBar, perc
+        updateText( options.pText, perc+' %') if options.asPerc
         setTimeout( ->
-          updateProgress()
-        , timeoutVal)
+          updateProgress(el, options)
+        , options.timeoutVal)
+
+    getEl = (el) ->
+      # Wrapper
+      wrapperEl = el.replace("#","")
+
+      # Try selecting ID first
+      if document.getElementById(wrapperEl)
+        wrapper = document.getElementById(wrapperEl)
+
+      # If element with an ID doesn't exist, use querySelector
+      else if document.querySelector(wrapperEl)
+        wrapper = document.querySelector(wrapperEl)
+
+      # If element doesn't exists, stop here.
+      else
+        # throw new Error("The element you are trying to select doesn't exist")
+        wrapper = null
+
+      return wrapper
 
     progress = undefined
     opts = undefined
 
-    ProgressBar = (el, options ) ->
+    ProgressBar = (el, options) ->
 
       i = undefined
 
@@ -48,27 +67,22 @@
       for i of options
         @options[i] = options[i]
 
-      # Wrapper
-      @wrapperEl = el.replace("#","")
-
-      # Try selecting ID first
-      if document.getElementById(@wrapperEl)
-        @wrapper = document.getElementById(@wrapperEl)
-
-      # If element with an ID doesn't exist, use querySelector
-      else if document.querySelector(@wrapperEl)
-        @wrapper = document.querySelector(@wrapperEl)
-
-      # If element doesn't exists, stop here.
-      else
-        throw new Error("The element you are trying to select doesn't exist")
-
       opts = @options
-      progress = @wrapper
+      progress = getEl el
+      opts.pBar = getEl(opts.pBar)
+      opts.pText = getEl(opts.pText)
+      opts.waitMs = opts.waitSeconds * 1000
+      opts.timeoutVal = Math.floor(opts.waitMs/100)
 
+      @_init this
       return
 
     ProgressBar:: =
+      _init : ->
+
+        updateTime(opts.pText, opts.waitSeconds) if opts.pText and not opts.asPerc
+        updateProgress(progress, opts)
+        return
 
 
 

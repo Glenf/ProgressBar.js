@@ -1,6 +1,6 @@
 module.exports =
-    dev : 
-        opions : 
+    dev :
+        options :
             bare : true
 
         files :

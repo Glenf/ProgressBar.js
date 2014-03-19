@@ -51,7 +51,7 @@ body {
 
     transition : width 522ms linear;
 
-    //-webkit-animation : move 1920ms linear infinite;
+    animation : move 1920ms linear infinite;
 }
 
 .progress__text {
@@ -66,31 +66,13 @@ body {
 
 }
 
-progress {
-    @extend .progress;
-    margin-top : 10px;
-    overflow : hidden;
-}
-progress::-webkit-progress-bar {
-    @extend .progress;
-    border : 0;
-}
-progress::-webkit-progress-value {
-    @extend .progress__bar;
-}
-progress::-moz-progress-bar {
-    @extend .progress__bar;
-}
 
 
-
-/*
-@-webkit-keyframes move {
-0 % {
-background-position : 0 0;
+@keyframes move {
+    0% {
+        background-position : 0 0;
+    }
+    100% {
+        background-position : -40px -40px;
+    }
 }
-100% {
-background-position : -40px -40px;
-}
-}
- */
