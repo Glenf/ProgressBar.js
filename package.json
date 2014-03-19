@@ -1,0 +1,18 @@
+{
+  "name": "progressbar",
+  "version": "0.1.0",
+  "description": "Progress bar js plugin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Glenf/ProgressBar.js"
+  },
+  "devDependencies": {
+    "grunt-contrib-coffee": "^0.10.1",
+    "grunt": "^0.4.4",
+    "grunt-contrib-watch": "^0.6.0",
+    "load-grunt-config": "^0.8.0-beta.1",
+    "grunt-sass": "^0.11.0",
+    "grunt-contrib-jade": "^0.11.0",
+    "grunt-autoprefixer": "^0.7.2"
+  }
+}

@@ -1,0 +1,6 @@
+default:
+    - 'coffee'
+
+styles:
+    - 'sass'
+    - 'autoprefixer'
