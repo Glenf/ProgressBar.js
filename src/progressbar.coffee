@@ -18,17 +18,26 @@
           updateTime el, time
         , 1000)
 
+    updateStatus = (perc, options)
+      p = if (perc <= 100) then perc else 100
+      unless isPaused
+        updateBar options.pBar, p
+        updateText( options.pText, p+' %') if options.asPercent
+
     updateProgress = (el, options)->
       now = new Date()
       timeDiff = now.getTime() - options.start.getTime()
       perc = Math.floor((timeDiff/options.waitMs)*100)
 
-      if perc <= 100
-        updateBar options.pBar, perc
-        updateText( options.pText, perc+' %') if options.asPerc
+      if perc <= 100 and not isPaused
+
+        updateStatus(perc, options)
+
         setTimeout( ->
           updateProgress(el, options)
         , options.timeoutVal)
+      else
+        updateStatus(perc, options)
 
     getEl = (el) ->
       # Wrapper
@@ -51,6 +60,8 @@
 
     progress = undefined
     opts = undefined
+    isPaused = undefined
+    pauseStart = undefined
 
     ProgressBar = (el, options) ->
 
@@ -61,7 +72,7 @@
         start : new Date()
         pBar : '.progress__bar'
         pText : '.progress__text'
-        asPerc : false
+        asPercent : false
         waitSeconds : 160
 
       for i of options
@@ -78,12 +89,48 @@
       return
 
     ProgressBar:: =
-      _init : ->
+      toggle : ->
+        if isPaused
+          @run()
+        else
+          @pause()
 
-        updateTime(opts.pText, opts.waitSeconds) if opts.pText and not opts.asPerc
+      run : ->
+        isPaused = false
+
+        # opts.start = new Date(@_getNewWait(opts.waitSeconds, pauseStart))
+        # console.log @_getPauseSeconds(pauseStart)
+        # @updateWait(@_getPauseSeconds(pauseStart))
+        @updateWait(30)
+
         updateProgress(progress, opts)
         return
 
+      pause : ->
+        @_setPause()
+        isPaused = true
+        return
+
+      # Sets new wait time (in seconds)
+      updateWait : (t) ->
+        opts.waitSeconds = t
+        opts.waitMs = t * 1000
+        opts.timeoutVal = Math.floor(opts.waitMs/100)
+        return
+
+
+      _init : ->
+
+        updateTime(opts.pText, opts.waitSeconds) if opts.pText and not opts.asPercent
+        updateProgress(progress, opts)
+        return
+
+      _setPause : ->
+        pauseStart = new Date()
+
+      _getPauseSeconds : (pause) ->
+        now = new Date()
+        return Math.round((now.getTime() - pause.getTime())/1000)
 
 
     new ProgressBar(el,options)
@@ -94,6 +141,8 @@
 
 opts = {
   start : new Date()
+  waitSeconds : 60
+  asPercent : true
 }
 
-progressBar('.progress', opts)
+tmp = progressBar('.progress', opts)

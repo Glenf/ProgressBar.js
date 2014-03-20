@@ -1,10 +1,10 @@
-var opts;
+var opts, tmp;
 
 (function(document, window) {
   "use strict";
   var progressBar;
   progressBar = function(el, options) {
-    var ProgressBar, getEl, opts, progress, updateBar, updateProgress, updateText, updateTime;
+    var ProgressBar, getEl, isPaused, opts, pauseStart, progress, updateBar, updateProgress, updateText, updateTime;
     updateBar = function(el, percentage) {
       return el.style.width = percentage + '%';
     };
@@ -25,9 +25,9 @@ var opts;
       now = new Date();
       timeDiff = now.getTime() - options.start.getTime();
       perc = Math.floor((timeDiff / options.waitMs) * 100);
-      if (perc <= 100) {
+      if (perc <= 100 && !isPaused) {
         updateBar(options.pBar, perc);
-        if (options.asPerc) {
+        if (options.asPercent) {
           updateText(options.pText, perc + ' %');
         }
         return setTimeout(function() {
@@ -49,6 +49,8 @@ var opts;
     };
     progress = void 0;
     opts = void 0;
+    isPaused = void 0;
+    pauseStart = void 0;
     ProgressBar = function(el, options) {
       var i;
       i = void 0;
@@ -56,7 +58,7 @@ var opts;
         start: new Date(),
         pBar: '.progress__bar',
         pText: '.progress__text',
-        asPerc: false,
+        asPercent: false,
         waitSeconds: 160
       };
       for (i in options) {
@@ -71,11 +73,41 @@ var opts;
       this._init(this);
     };
     ProgressBar.prototype = {
+      toggle: function() {
+        if (isPaused) {
+          return this.run();
+        } else {
+          return this.pause();
+        }
+      },
+      run: function() {
+        isPaused = false;
+        this.updateWait(30);
+        console.log(opts);
+        updateProgress(progress, opts);
+      },
+      pause: function() {
+        this._setPause();
+        isPaused = true;
+      },
+      updateWait: function(t) {
+        opts.waitSeconds = t;
+        opts.waitMs = t * 1000;
+        return opts.timeoutVal = Math.floor(opts.waitMs / 100);
+      },
       _init: function() {
-        if (opts.pText && !opts.asPerc) {
+        if (opts.pText && !opts.asPercent) {
           updateTime(opts.pText, opts.waitSeconds);
         }
         updateProgress(progress, opts);
+      },
+      _setPause: function() {
+        return pauseStart = new Date();
+      },
+      _getPauseSeconds: function(pause) {
+        var now;
+        now = new Date();
+        return Math.round((now.getTime() - pause.getTime()) / 1000);
       }
     };
     return new ProgressBar(el, options);
@@ -84,7 +116,9 @@ var opts;
 })(document, window);
 
 opts = {
-  start: new Date()
+  start: new Date(),
+  waitSeconds: 60,
+  asPercent: true
 };
 
-progressBar('.progress', opts);
+tmp = progressBar('.progress', opts);
