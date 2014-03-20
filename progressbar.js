@@ -4,9 +4,10 @@ var opts, tmp;
   "use strict";
   var progressBar;
   progressBar = function(el, options) {
-    var ProgressBar, getEl, isPaused, opts, pauseStart, progress, updateBar, updateProgress, updateText, updateTime;
+    var ProgressBar, addTime, calculateRemaining, getEl, isPaused, opts, pauseStart, progress, updateBar, updateProgress, updateStatus, updateText, updateTime;
     updateBar = function(el, percentage) {
-      return el.style.width = percentage + '%';
+      el.style.width = percentage + '%';
+      el.dataset.value = percentage;
     };
     updateText = function(el, text) {
       return el.innerText = text;
@@ -20,20 +21,39 @@ var opts, tmp;
         }, 1000);
       }
     };
+    updateStatus = function(perc, options) {
+      var p;
+      p = perc <= 100 ? perc : 100;
+      if (!isPaused) {
+        updateBar(options.pBar, p);
+        if (options.asPercent) {
+          return updateText(options.pText, p + ' %');
+        }
+      }
+    };
     updateProgress = function(el, options) {
       var now, perc, timeDiff;
       now = new Date();
       timeDiff = now.getTime() - options.start.getTime();
       perc = Math.floor((timeDiff / options.waitMs) * 100);
+      if (perc < options.pBar.dataset.value) {
+        calculateRemaining(options);
+      }
       if (perc <= 100 && !isPaused) {
-        updateBar(options.pBar, perc);
-        if (options.asPercent) {
-          updateText(options.pText, perc + ' %');
-        }
+        updateStatus(perc, options);
         return setTimeout(function() {
           return updateProgress(el, options);
         }, options.timeoutVal);
+      } else {
+        return updateStatus(perc, options);
       }
+    };
+    calculateRemaining = function(options) {
+      var remaining;
+      remaining = 100 - options.pBar.dataset.value;
+    };
+    addTime = function(v1, v2) {
+      return parseFloat(v1) + parseFloat(v2);
     };
     getEl = function(el) {
       var wrapper, wrapperEl;
@@ -82,8 +102,7 @@ var opts, tmp;
       },
       run: function() {
         isPaused = false;
-        this.updateWait(30);
-        console.log(opts);
+        this.updateWait('+' + this._getPauseSeconds(pauseStart));
         updateProgress(progress, opts);
       },
       pause: function() {
@@ -91,9 +110,10 @@ var opts, tmp;
         isPaused = true;
       },
       updateWait: function(t) {
+        t = t.match(/\+|\-/) ? addTime(opts.waitSeconds, t) : t;
         opts.waitSeconds = t;
         opts.waitMs = t * 1000;
-        return opts.timeoutVal = Math.floor(opts.waitMs / 100);
+        opts.timeoutVal = Math.floor(opts.waitMs / 100);
       },
       _init: function() {
         if (opts.pText && !opts.asPercent) {
@@ -117,7 +137,7 @@ var opts, tmp;
 
 opts = {
   start: new Date(),
-  waitSeconds: 60,
+  waitSeconds: 100,
   asPercent: true
 };
 

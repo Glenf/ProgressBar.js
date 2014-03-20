@@ -5,8 +5,11 @@
 
     updateBar = (el, percentage) ->
       el.style.width = percentage + '%'
+      el.dataset.value = percentage
+      return
 
     updateText = (el, text) ->
+      # TODO : neds to be more browser agnostic
       el.innerText = text
 
     updateTime = (el, time) ->
@@ -18,7 +21,7 @@
           updateTime el, time
         , 1000)
 
-    updateStatus = (perc, options)
+    updateStatus = (perc, options) ->
       p = if (perc <= 100) then perc else 100
       unless isPaused
         updateBar options.pBar, p
@@ -29,6 +32,10 @@
       timeDiff = now.getTime() - options.start.getTime()
       perc = Math.floor((timeDiff/options.waitMs)*100)
 
+      # If new perc is smalle than current perc
+      if perc < options.pBar.dataset.value
+        calculateRemaining(options)
+
       if perc <= 100 and not isPaused
 
         updateStatus(perc, options)
@@ -38,6 +45,15 @@
         , options.timeoutVal)
       else
         updateStatus(perc, options)
+
+    calculateRemaining = (options) ->
+      # TODO: This should recalculate the remaining percentages and the update speed
+      remaining = 100-options.pBar.dataset.value
+      # Math.floor(options.waitMs/remaining)
+      return
+
+    addTime = (v1, v2) ->
+      parseFloat(v1) + parseFloat(v2)
 
     getEl = (el) ->
       # Wrapper
@@ -98,14 +114,12 @@
       run : ->
         isPaused = false
 
-        # opts.start = new Date(@_getNewWait(opts.waitSeconds, pauseStart))
-        # console.log @_getPauseSeconds(pauseStart)
-        # @updateWait(@_getPauseSeconds(pauseStart))
-        @updateWait(30)
+        @updateWait('+' + @_getPauseSeconds(pauseStart))
 
         updateProgress(progress, opts)
         return
 
+      # Pause the progress bar
       pause : ->
         @_setPause()
         isPaused = true
@@ -113,6 +127,8 @@
 
       # Sets new wait time (in seconds)
       updateWait : (t) ->
+        t = if (t.match(/\+|\-/)) then addTime(opts.waitSeconds, t) else t
+
         opts.waitSeconds = t
         opts.waitMs = t * 1000
         opts.timeoutVal = Math.floor(opts.waitMs/100)
@@ -141,7 +157,7 @@
 
 opts = {
   start : new Date()
-  waitSeconds : 60
+  waitSeconds : 100
   asPercent : true
 }
 
