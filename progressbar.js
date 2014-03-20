@@ -32,20 +32,19 @@ var opts, tmp;
       }
     };
     updateProgress = function(el, options) {
-      var now, perc, timeDiff;
+      var now, p, perc, timeDiff;
       now = new Date();
       timeDiff = now.getTime() - options.start.getTime();
-      perc = Math.floor((timeDiff / options.waitMs) * 100);
+      p = Math.floor((timeDiff / options.waitMs) * 100);
+      perc = p >= 0 ? p : 100;
       if (perc < options.pBar.dataset.value) {
         calculateRemaining(options);
       }
-      if (perc <= 100 && !isPaused) {
-        updateStatus(perc, options);
+      updateStatus(perc, options);
+      if (perc < 100 && !isPaused) {
         return setTimeout(function() {
           return updateProgress(el, options);
         }, options.timeoutVal);
-      } else {
-        return updateStatus(perc, options);
       }
     };
     calculateRemaining = function(options) {
@@ -77,7 +76,7 @@ var opts, tmp;
       this.options = {
         start: new Date(),
         pBar: '.progress__bar',
-        pText: '.progress__text',
+        pText: null,
         asPercent: false,
         waitSeconds: 160
       };
@@ -87,7 +86,7 @@ var opts, tmp;
       opts = this.options;
       progress = getEl(el);
       opts.pBar = getEl(opts.pBar);
-      opts.pText = getEl(opts.pText);
+      opts.pText = opts.pText ? getEl(opts.pText) : opts.pText;
       opts.waitMs = opts.waitSeconds * 1000;
       opts.timeoutVal = Math.floor(opts.waitMs / 100);
       this._init(this);
@@ -137,8 +136,7 @@ var opts, tmp;
 
 opts = {
   start: new Date(),
-  waitSeconds: 100,
-  asPercent: true
+  waitSeconds: 160
 };
 
 tmp = progressBar('.progress', opts);

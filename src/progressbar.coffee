@@ -30,21 +30,21 @@
     updateProgress = (el, options)->
       now = new Date()
       timeDiff = now.getTime() - options.start.getTime()
-      perc = Math.floor((timeDiff/options.waitMs)*100)
+      # Should we separate the percentage calculation?
+      p = Math.floor((timeDiff/options.waitMs)*100)
+      perc = if (p >= 0) then p else 100
 
       # If new perc is smalle than current perc
       if perc < options.pBar.dataset.value
         calculateRemaining(options)
 
-      if perc <= 100 and not isPaused
+      updateStatus(perc, options)
 
-        updateStatus(perc, options)
+      if perc < 100 and not isPaused
 
         setTimeout( ->
           updateProgress(el, options)
         , options.timeoutVal)
-      else
-        updateStatus(perc, options)
 
     calculateRemaining = (options) ->
       # TODO: This should recalculate the remaining percentages and the update speed
@@ -87,7 +87,7 @@
       @options =
         start : new Date()
         pBar : '.progress__bar'
-        pText : '.progress__text'
+        pText : null
         asPercent : false
         waitSeconds : 160
 
@@ -97,7 +97,7 @@
       opts = @options
       progress = getEl el
       opts.pBar = getEl(opts.pBar)
-      opts.pText = getEl(opts.pText)
+      opts.pText = if (opts.pText) then getEl(opts.pText) else opts.pText
       opts.waitMs = opts.waitSeconds * 1000
       opts.timeoutVal = Math.floor(opts.waitMs/100)
 
@@ -157,8 +157,8 @@
 
 opts = {
   start : new Date()
-  waitSeconds : 100
-  asPercent : true
+  waitSeconds : 160
+  # asPercent : true
 }
 
 tmp = progressBar('.progress', opts)
