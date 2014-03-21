@@ -13,6 +13,8 @@
       el.innerText = text
 
     updateTime = (el, time) ->
+      # TODO: Update the time when recalculation happens
+
       updateText(el, time+' s')
 
       if time > 0
@@ -47,7 +49,6 @@
         , options.timeoutVal)
 
     recalculateProgress = (time, opts) ->
-      # TODO: This should recalculate the remaining percentages and the update speed
 
       # get the curent percentage
       curP = opts.pBar.getAttribute('data-value')
@@ -74,8 +75,6 @@
       opts.waitMs = opts.waitSeconds * 1000
       opts.timeoutVal = Math.floor(opts.waitMs/100)
 
-      # console.log newRemainingTime+'/'+'('+remaining+'/100)', newWaitTime
-      # Math.floor(options.waitMs/remaining)
       return
 
     addTime = (v1, v2) ->

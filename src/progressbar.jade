@@ -19,7 +19,10 @@ body
     script.
         var opts = {
             start : new Date(),
-            waitSeconds : 100
+            pBar : '.progress__bar',
+            pText : '.progress__text',
+            asPercent : true,
+            waitSeconds : 160
         }
 
         var bar = progressBar('.progress', opts)

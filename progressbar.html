@@ -1,6 +1,9 @@
 <!DOCTYPE html><head><meta charset="utf-8"><title>Progress bar</title><link rel="stylesheet" href="progressbar.css"></head><body><div class="wrap"><div class="progress"><div class="progress__bar"></div><div class="progress__text"></div></div></div><script src="progressbar.js"></script><script>var opts = {
     start : new Date(),
-    waitSeconds : 100
+    pBar : '.progress__bar',
+    pText : '.progress__text',
+    asPercent : true,
+    waitSeconds : 160
 }
 
 var bar = progressBar('.progress', opts)</script></body>
