@@ -33,10 +33,10 @@
       # Should we separate the percentage calculation?
       p = Math.floor((timeDiff/options.waitMs)*100)
       perc = if (p >= 0) then p else 100
+      curPerc = options.pBar.getAttribute('data-value')
 
       # If new perc is smalle than current perc
-      if perc < options.pBar.getAttribute('data-value')
-        calculateRemaining(options)
+      perc = if (perc < curPerc) then curPerc else perc
 
       updateStatus(perc, options)
 
@@ -46,9 +46,35 @@
           updateProgress(el, options)
         , options.timeoutVal)
 
-    calculateRemaining = (options) ->
+    recalculateProgress = (time, opts) ->
       # TODO: This should recalculate the remaining percentages and the update speed
-      remaining = 100-options.pBar.getAttribute('data-value')
+
+      # get the curent percentage
+      curP = opts.pBar.getAttribute('data-value')
+
+      # get the remaining percentage
+      remaining = 100-curP
+
+      # get the time passed
+      passedTime = Math.floor(opts.waitSeconds*curP/100)
+
+      # get the new remainig time
+      newRemainingTime = if (time-passedTime < 0) then 0 else time-passedTime
+
+      # recalculate the new wait time and speed based on the current percenage position
+      newWaitTime = Math.floor(newRemainingTime/(remaining/100))
+
+      # Calculate new start offset
+      startOffset = (newWaitTime-newRemainingTime)*1000
+      now = new Date()
+
+      # Set the new start time
+      opts.start = new Date( now.getTime() - startOffset)
+      opts.waitSeconds = newWaitTime
+      opts.waitMs = opts.waitSeconds * 1000
+      opts.timeoutVal = Math.floor(opts.waitMs/100)
+
+      # console.log newRemainingTime+'/'+'('+remaining+'/100)', newWaitTime
       # Math.floor(options.waitMs/remaining)
       return
 
@@ -129,11 +155,15 @@
       updateWait : (t) ->
         t = if (t.match(/\+|\-/)) then addTime(opts.waitSeconds, t) else t
 
-        opts.waitSeconds = t
-        opts.waitMs = t * 1000
-        opts.timeoutVal = Math.floor(opts.waitMs/100)
+        # opts.waitSeconds = t
+        # opts.waitMs = t * 1000
+        # opts.timeoutVal = Math.floor(opts.waitMs/100)
+        @_recalculate(t)
         return
 
+      # Set progress bar to 100
+      done : ->
+        @updateWait('0')
 
       _init : ->
 
@@ -148,6 +178,8 @@
         now = new Date()
         return Math.round((now.getTime() - pause.getTime())/1000)
 
+      _recalculate : (time)->
+        recalculateProgress(time,opts)
 
     new ProgressBar(el,options)
 

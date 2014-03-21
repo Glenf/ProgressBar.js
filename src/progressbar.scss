@@ -44,7 +44,7 @@ body {
         rgba(#fff, .3) 75%
     );
 
-    background-size : 25px 25px;
+    background-size : 40px 40px;
     background-position : 0 0;
 
     width : 0;
@@ -73,6 +73,6 @@ body {
         background-position : 0 0;
     }
     100% {
-        background-position : -25px -25px;
+        background-position : -40px -40px;
     }
 }

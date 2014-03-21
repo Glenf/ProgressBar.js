@@ -2,7 +2,7 @@
   "use strict";
   var progressBar;
   progressBar = function(el, options) {
-    var ProgressBar, addTime, calculateRemaining, getEl, isPaused, opts, pauseStart, progress, updateBar, updateProgress, updateStatus, updateText, updateTime;
+    var ProgressBar, addTime, getEl, isPaused, opts, pauseStart, progress, recalculateProgress, updateBar, updateProgress, updateStatus, updateText, updateTime;
     updateBar = function(el, percentage) {
       el.style.width = percentage + '%';
       el.setAttribute('data-value', percentage);
@@ -30,14 +30,13 @@
       }
     };
     updateProgress = function(el, options) {
-      var now, p, perc, timeDiff;
+      var curPerc, now, p, perc, timeDiff;
       now = new Date();
       timeDiff = now.getTime() - options.start.getTime();
       p = Math.floor((timeDiff / options.waitMs) * 100);
       perc = p >= 0 ? p : 100;
-      if (perc < options.pBar.getAttribute('data-value')) {
-        calculateRemaining(options);
-      }
+      curPerc = options.pBar.getAttribute('data-value');
+      perc = perc < curPerc ? curPerc : perc;
       updateStatus(perc, options);
       if (perc < 100 && !isPaused) {
         return setTimeout(function() {
@@ -45,9 +44,19 @@
         }, options.timeoutVal);
       }
     };
-    calculateRemaining = function(options) {
-      var remaining;
-      remaining = 100 - options.pBar.getAttribute('data-value');
+    recalculateProgress = function(time, opts) {
+      var curP, newRemainingTime, newWaitTime, now, passedTime, remaining, startOffset;
+      curP = opts.pBar.getAttribute('data-value');
+      remaining = 100 - curP;
+      passedTime = Math.floor(opts.waitSeconds * curP / 100);
+      newRemainingTime = time - passedTime < 0 ? 0 : time - passedTime;
+      newWaitTime = Math.floor(newRemainingTime / (remaining / 100));
+      startOffset = (newWaitTime - newRemainingTime) * 1000;
+      now = new Date();
+      opts.start = new Date(now.getTime() - startOffset);
+      opts.waitSeconds = newWaitTime;
+      opts.waitMs = opts.waitSeconds * 1000;
+      opts.timeoutVal = Math.floor(opts.waitMs / 100);
     };
     addTime = function(v1, v2) {
       return parseFloat(v1) + parseFloat(v2);
@@ -108,9 +117,10 @@
       },
       updateWait: function(t) {
         t = t.match(/\+|\-/) ? addTime(opts.waitSeconds, t) : t;
-        opts.waitSeconds = t;
-        opts.waitMs = t * 1000;
-        opts.timeoutVal = Math.floor(opts.waitMs / 100);
+        this._recalculate(t);
+      },
+      done: function() {
+        return this.updateWait('0');
       },
       _init: function() {
         if (opts.pText && !opts.asPercent) {
@@ -125,6 +135,9 @@
         var now;
         now = new Date();
         return Math.round((now.getTime() - pause.getTime()) / 1000);
+      },
+      _recalculate: function(time) {
+        return recalculateProgress(time, opts);
       }
     };
     return new ProgressBar(el, options);
