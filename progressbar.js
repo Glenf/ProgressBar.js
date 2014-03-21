@@ -1,5 +1,3 @@
-var opts, tmp;
-
 (function(document, window) {
   "use strict";
   var progressBar;
@@ -7,7 +5,7 @@ var opts, tmp;
     var ProgressBar, addTime, calculateRemaining, getEl, isPaused, opts, pauseStart, progress, updateBar, updateProgress, updateStatus, updateText, updateTime;
     updateBar = function(el, percentage) {
       el.style.width = percentage + '%';
-      el.dataset.value = percentage;
+      el.setAttribute('data-value', percentage);
     };
     updateText = function(el, text) {
       return el.innerText = text;
@@ -37,7 +35,7 @@ var opts, tmp;
       timeDiff = now.getTime() - options.start.getTime();
       p = Math.floor((timeDiff / options.waitMs) * 100);
       perc = p >= 0 ? p : 100;
-      if (perc < options.pBar.dataset.value) {
+      if (perc < options.pBar.getAttribute('data-value')) {
         calculateRemaining(options);
       }
       updateStatus(perc, options);
@@ -49,7 +47,7 @@ var opts, tmp;
     };
     calculateRemaining = function(options) {
       var remaining;
-      remaining = 100 - options.pBar.dataset.value;
+      remaining = 100 - options.pBar.getAttribute('data-value');
     };
     addTime = function(v1, v2) {
       return parseFloat(v1) + parseFloat(v2);
@@ -133,10 +131,3 @@ var opts, tmp;
   };
   window.progressBar = progressBar;
 })(document, window);
-
-opts = {
-  start: new Date(),
-  waitSeconds: 160
-};
-
-tmp = progressBar('.progress', opts);

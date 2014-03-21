@@ -5,7 +5,7 @@
 
     updateBar = (el, percentage) ->
       el.style.width = percentage + '%'
-      el.dataset.value = percentage
+      el.setAttribute('data-value', percentage)
       return
 
     updateText = (el, text) ->
@@ -35,7 +35,7 @@
       perc = if (p >= 0) then p else 100
 
       # If new perc is smalle than current perc
-      if perc < options.pBar.dataset.value
+      if perc < options.pBar.getAttribute('data-value')
         calculateRemaining(options)
 
       updateStatus(perc, options)
@@ -48,7 +48,7 @@
 
     calculateRemaining = (options) ->
       # TODO: This should recalculate the remaining percentages and the update speed
-      remaining = 100-options.pBar.dataset.value
+      remaining = 100-options.pBar.getAttribute('data-value')
       # Math.floor(options.waitMs/remaining)
       return
 
@@ -154,11 +154,3 @@
   window.progressBar = progressBar
   return
 ) document, window
-
-opts = {
-  start : new Date()
-  waitSeconds : 160
-  # asPercent : true
-}
-
-tmp = progressBar('.progress', opts)
