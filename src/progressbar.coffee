@@ -9,8 +9,7 @@
       return
 
     updateText = (el, text) ->
-      # TODO : neds to be more browser agnostic
-      el.innerText = text
+      el.textContent = text
 
     updateTime = (el, time) ->
       # TODO: Update the time when recalculation happens

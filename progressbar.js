@@ -8,7 +8,7 @@
       el.setAttribute('data-value', percentage);
     };
     updateText = function(el, text) {
-      return el.innerText = text;
+      return el.textContent = text;
     };
     updateTime = function(el, time) {
       updateText(el, time + ' s');
