@@ -41,7 +41,7 @@
 
       updateStatus(perc, options)
 
-      if perc < 100 and not isPaused
+      if perc < 99 and not isPaused
 
         setTimeout( ->
           updateProgress(el, options)
@@ -113,7 +113,7 @@
         pBar : '.progress__bar'
         pText : null
         asPercent : false
-        waitSeconds : 160
+        waitSeconds : 90
 
       for i of options
         @options[i] = options[i]

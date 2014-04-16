@@ -38,7 +38,7 @@
       curPerc = options.pBar.getAttribute('data-value');
       perc = perc < curPerc ? curPerc : perc;
       updateStatus(perc, options);
-      if (perc < 100 && !isPaused) {
+      if (perc < 99 && !isPaused) {
         return setTimeout(function() {
           return updateProgress(el, options);
         }, options.timeoutVal);
@@ -85,7 +85,7 @@
         pBar: '.progress__bar',
         pText: null,
         asPercent: false,
-        waitSeconds: 160
+        waitSeconds: 90
       };
       for (i in options) {
         this.options[i] = options[i];
